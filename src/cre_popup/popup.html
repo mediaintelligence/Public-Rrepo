@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRE Underwriting Engine</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-section">
+        <img src="../../icons/icon32.png" alt="CRE" class="logo">
+        <div class="title-section">
+          <h1>CRE Underwriting</h1>
+          <span class="version">v1.0.0</span>
+        </div>
+      </div>
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting...</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="quick">Quick Analysis</button>
+      <button class="tab" data-tab="lease">Lease Validation</button>
+      <button class="tab" data-tab="market">Market Data</button>
+    </nav>
+
+    <!-- Quick Analysis Tab -->
+    <section class="tab-content active" id="quick-tab">
+      <form id="quickAnalysisForm" class="form">
+        <div class="form-group">
+          <label for="propertyType">Property Type</label>
+          <select id="propertyType" required>
+            <option value="">Select type...</option>
+            <option value="office">Office</option>
+            <option value="retail">Retail</option>
+            <option value="industrial">Industrial</option>
+            <option value="multifamily">Multifamily</option>
+            <option value="mixed_use">Mixed Use</option>
+            <option value="hospitality">Hospitality</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rsf">RSF (sq ft)</label>
+            <input type="number" id="rsf" placeholder="100,000" min="0">
+          </div>
+          <div class="form-group">
+            <label for="purchasePrice">Purchase Price ($)</label>
+            <input type="number" id="purchasePrice" placeholder="25,000,000" min="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="capRate">Cap Rate (%)</label>
+            <input type="number" id="capRate" placeholder="6.5" step="0.1" min="0" max="20">
+          </div>
+          <div class="form-group">
+            <label for="noi">NOI ($)</label>
+            <input type="number" id="noi" placeholder="1,625,000" min="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="submarket">Submarket</label>
+          <input type="text" id="submarket" placeholder="Manhattan CBD">
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-icon">&#9654;</span>
+            Run Quick Analysis
+          </button>
+          <button type="button" class="btn btn-secondary" id="openSidePanel">
+            Full Analysis
+          </button>
+        </div>
+      </form>
+
+      <!-- Results Section -->
+      <div class="results-section hidden" id="quickResults">
+        <h3>Analysis Results</h3>
+        <div class="results-grid">
+          <div class="result-card">
+            <span class="result-label">Implied Value</span>
+            <span class="result-value" id="impliedValue">-</span>
+          </div>
+          <div class="result-card">
+            <span class="result-label">Price/SF</span>
+            <span class="result-value" id="priceSf">-</span>
+          </div>
+          <div class="result-card">
+            <span class="result-label">Market Rent</span>
+            <span class="result-value" id="marketRent">-</span>
+          </div>
+          <div class="result-card">
+            <span class="result-label">Vacancy Rate</span>
+            <span class="result-value" id="vacancyRate">-</span>
+          </div>
+        </div>
+        <div class="validation-badges" id="validationBadges"></div>
+      </div>
+    </section>
+
+    <!-- Lease Validation Tab -->
+    <section class="tab-content" id="lease-tab">
+      <form id="leaseValidationForm" class="form">
+        <div class="form-group">
+          <label for="leaseType">Lease Type</label>
+          <select id="leaseType" required>
+            <option value="">Select type...</option>
+            <option value="triple_net">Triple Net (NNN)</option>
+            <option value="modified_gross">Modified Gross</option>
+            <option value="gross">Gross</option>
+            <option value="absolute_net">Absolute Net</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="leaseRsf">RSF (sq ft)</label>
+            <input type="number" id="leaseRsf" placeholder="10,000" min="0">
+          </div>
+          <div class="form-group">
+            <label for="baseRent">Base Rent ($/SF)</label>
+            <input type="number" id="baseRent" placeholder="45.00" step="0.01" min="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="commenceDate">Commencement</label>
+            <input type="date" id="commenceDate">
+          </div>
+          <div class="form-group">
+            <label for="expireDate">Expiration</label>
+            <input type="date" id="expireDate">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tenantCredit">Tenant Credit Rating</label>
+          <select id="tenantCredit">
+            <option value="AAA">AAA</option>
+            <option value="AA">AA</option>
+            <option value="A" selected>A</option>
+            <option value="BBB">BBB</option>
+            <option value="BB">BB</option>
+            <option value="B">B</option>
+            <option value="CCC">CCC</option>
+            <option value="NR">Not Rated</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="hasBaseYear">
+            Has Base Year (Expense Stop)
+          </label>
+        </div>
+
+        <div class="base-year-section hidden" id="baseYearSection">
+          <div class="form-group">
+            <label for="baseYear">Base Year</label>
+            <input type="number" id="baseYear" placeholder="2024" min="2000" max="2050">
+          </div>
+          <div class="form-group">
+            <label for="expenseStop">Expense Stop ($/SF)</label>
+            <input type="number" id="expenseStop" placeholder="12.50" step="0.01" min="0">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-icon">&#10003;</span>
+            Validate Lease
+          </button>
+        </div>
+      </form>
+
+      <!-- Validation Results -->
+      <div class="validation-results hidden" id="leaseValidationResults">
+        <h3>Validation Results</h3>
+        <div class="blockers-section" id="blockersSection">
+          <h4 class="blockers-title">
+            <span class="blocker-icon">&#9888;</span>
+            Blockers Found
+          </h4>
+          <ul class="blockers-list" id="blockersList"></ul>
+        </div>
+        <div class="warnings-section" id="warningsSection">
+          <h4 class="warnings-title">
+            <span class="warning-icon">&#9432;</span>
+            Warnings
+          </h4>
+          <ul class="warnings-list" id="warningsList"></ul>
+        </div>
+        <div class="passed-section" id="passedSection">
+          <h4 class="passed-title">
+            <span class="passed-icon">&#10003;</span>
+            Checks Passed
+          </h4>
+          <ul class="passed-list" id="passedList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Market Data Tab -->
+    <section class="tab-content" id="market-tab">
+      <form id="marketDataForm" class="form">
+        <div class="form-group">
+          <label for="marketPropertyType">Property Type</label>
+          <select id="marketPropertyType" required>
+            <option value="">Select type...</option>
+            <option value="office">Office</option>
+            <option value="retail">Retail</option>
+            <option value="industrial">Industrial</option>
+            <option value="multifamily">Multifamily</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="marketSubmarket">Submarket</label>
+          <input type="text" id="marketSubmarket" placeholder="Enter submarket">
+        </div>
+
+        <div class="form-group">
+          <label for="simulationPaths">Simulation Paths</label>
+          <select id="simulationPaths">
+            <option value="100">100 (Quick)</option>
+            <option value="1000" selected>1,000 (Standard)</option>
+            <option value="10000">10,000 (Full)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="horizonYears">Horizon (Years)</label>
+          <input type="number" id="horizonYears" value="10" min="1" max="30">
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-icon">&#128200;</span>
+            Run Market Simulation
+          </button>
+        </div>
+      </form>
+
+      <!-- Market Results -->
+      <div class="market-results hidden" id="marketResults">
+        <h3>Market Projections (OU Mean-Reversion)</h3>
+        <div class="market-metrics">
+          <div class="metric-card">
+            <span class="metric-label">Cap Rate (Mean)</span>
+            <span class="metric-value" id="capRateMean">-</span>
+            <span class="metric-range" id="capRateRange">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Rent Growth</span>
+            <span class="metric-value" id="rentGrowth">-</span>
+            <span class="metric-range" id="rentGrowthRange">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Vacancy</span>
+            <span class="metric-value" id="vacancy">-</span>
+            <span class="metric-range" id="vacancyRange">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Regime</span>
+            <span class="metric-value" id="marketRegime">-</span>
+          </div>
+        </div>
+        <p class="ou-note">
+          <strong>Note:</strong> Using Ornstein-Uhlenbeck mean-reversion model (NOT GBM).
+          CRE markets exhibit mean-reverting behavior.
+        </p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <button class="footer-btn" id="settingsBtn" title="Settings">
+        &#9881;
+      </button>
+      <button class="footer-btn" id="historyBtn" title="History">
+        &#128336;
+      </button>
+      <button class="footer-btn" id="helpBtn" title="Help">
+        &#63;
+      </button>
+      <a href="https://mizoki3.com" target="_blank" class="footer-link">MIZ OKI Platform</a>
+    </footer>
+  </div>
+
+  <script src="../shared/api-client.js"></script>
+  <script src="../shared/utils.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

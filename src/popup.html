@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boss Agent</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="../icons/icon32.png" alt="Boss Agent" width="24" height="24">
+                <span>Boss Agent</span>
+            </div>
+            <div class="status" id="status">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tabs">
+            <button class="tab active" data-tab="chat">Chat</button>
+            <button class="tab" data-tab="tools">Financial Tools</button>
+            <button class="tab" data-tab="quick">Quick Actions</button>
+            <button class="tab" data-tab="cre">CRE Deals</button>
+        </nav>
+
+        <!-- Chat Tab -->
+        <div class="tab-content active" id="tab-chat">
+            <div class="chat-container" id="chat-container">
+                <div class="welcome-message">
+                    <h3>Welcome to Boss Agent</h3>
+                    <p>Ask about financial models, LTV prediction, CATE estimation, or any marketing intelligence.</p>
+                </div>
+            </div>
+            <div class="input-area">
+                <textarea id="message-input" placeholder="Ask Boss Agent..." rows="2"></textarea>
+                <button id="send-btn" class="btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Financial Tools Tab -->
+        <div class="tab-content" id="tab-tools">
+            <div class="tools-grid">
+                <!-- Value-Based Bidding -->
+                <div class="tool-category">
+                    <h4>Value-Based Bidding</h4>
+                    <button class="tool-btn" data-tool="vbb_predict_ltv">
+                        <span class="tool-icon">$</span>
+                        <span>Predict LTV</span>
+                    </button>
+                    <button class="tool-btn" data-tool="vbb_optimize_target_roas">
+                        <span class="tool-icon">%</span>
+                        <span>Optimize ROAS</span>
+                    </button>
+                    <button class="tool-btn" data-tool="vbb_process_conversion">
+                        <span class="tool-icon">C</span>
+                        <span>Process Conversion</span>
+                    </button>
+                </div>
+
+                <!-- ROI & CATE -->
+                <div class="tool-category">
+                    <h4>ROI Optimization</h4>
+                    <button class="tool-btn" data-tool="roi_estimate_cate">
+                        <span class="tool-icon">T</span>
+                        <span>Estimate CATE</span>
+                    </button>
+                    <button class="tool-btn" data-tool="decision_allocate">
+                        <span class="tool-icon">B</span>
+                        <span>Budget Allocation</span>
+                    </button>
+                    <button class="tool-btn" data-tool="roi_validate_policy">
+                        <span class="tool-icon">V</span>
+                        <span>Validate Policy</span>
+                    </button>
+                </div>
+
+                <!-- Uplift Modeling -->
+                <div class="tool-category">
+                    <h4>Uplift Modeling</h4>
+                    <button class="tool-btn" data-tool="uplift_export_cohort">
+                        <span class="tool-icon">U</span>
+                        <span>Export Cohort</span>
+                    </button>
+                    <button class="tool-btn" data-tool="journey_compute_risk">
+                        <span class="tool-icon">R</span>
+                        <span>Journey Risk</span>
+                    </button>
+                    <button class="tool-btn" data-tool="uplift_estimate">
+                        <span class="tool-icon">E</span>
+                        <span>Estimate Uplift</span>
+                    </button>
+                </div>
+
+                <!-- Attribution -->
+                <div class="tool-category">
+                    <h4>Attribution</h4>
+                    <button class="tool-btn" data-tool="attribution_stitch_id">
+                        <span class="tool-icon">ID</span>
+                        <span>Stitch ID</span>
+                    </button>
+                    <button class="tool-btn" data-tool="attribution_push_weights">
+                        <span class="tool-icon">W</span>
+                        <span>Push Weights</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Tab -->
+        <div class="tab-content" id="tab-quick">
+            <div class="quick-actions">
+                <div class="action-card">
+                    <h4>Predict Customer LTV</h4>
+                    <input type="text" id="ltv-customer-id" placeholder="Customer ID">
+                    <select id="ltv-model-type">
+                        <option value="historical">Historical</option>
+                        <option value="cohort">Cohort</option>
+                        <option value="vertex_ai">Vertex AI ML</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                    <button class="btn-primary" id="predict-ltv-btn">Predict LTV</button>
+                    <div class="result" id="ltv-result"></div>
+                </div>
+
+                <div class="action-card">
+                    <h4>Optimize Target ROAS</h4>
+                    <input type="text" id="roas-campaign-id" placeholder="Campaign ID">
+                    <input type="number" id="roas-lookback" placeholder="Lookback Days" value="14">
+                    <button class="btn-primary" id="optimize-roas-btn">Optimize</button>
+                    <div class="result" id="roas-result"></div>
+                </div>
+
+                <div class="action-card">
+                    <h4>Estimate CATE</h4>
+                    <input type="text" id="cate-subject-id" placeholder="Subject ID">
+                    <textarea id="cate-features" placeholder='Features JSON (optional)' rows="2"></textarea>
+                    <button class="btn-primary" id="estimate-cate-btn">Estimate</button>
+                    <div class="result" id="cate-result"></div>
+                </div>
+
+                <div class="action-card">
+                    <h4>Journey Risk Score</h4>
+                    <input type="text" id="risk-user-id" placeholder="User ID">
+                    <input type="number" id="risk-window" placeholder="Window Days" value="14">
+                    <button class="btn-primary" id="compute-risk-btn">Compute Risk</button>
+                    <div class="result" id="risk-result"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRE Deals Tab -->
+        <div class="tab-content" id="tab-cre" style="padding: 0; min-height: 480px;">
+            <iframe src="cre_popup/popup.html" style="width: 100%; height: 480px; border: none; overflow: hidden;"></iframe>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <button id="open-sidepanel" title="Open Side Panel">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 3v18"/>
+                </svg>
+            </button>
+            <button id="open-options" title="Settings">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+            </button>
+            <span class="version" id="version">v1.0.0</span>
+        </footer>
+    </div>
+
+    <!-- Tool Modal -->
+    <div class="modal" id="tool-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Tool Name</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-description"></p>
+                <textarea id="modal-params" placeholder="Parameters (JSON)" rows="4">{}</textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn-primary" id="modal-invoke">Invoke Tool</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

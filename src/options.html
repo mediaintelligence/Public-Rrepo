@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boss Agent - Settings</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #252547;
+            --text-primary: #f0f0f0;
+            --text-secondary: #9090a0;
+            --accent: #e94560;
+            --accent-hover: #ff6b6b;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .header img {
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2 svg {
+            width: 20px;
+            height: 20px;
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group input[type="password"],
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-group .hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--warning);
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+        }
+
+        .status-dot.error {
+            background: var(--error);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: var(--success);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            background: var(--error);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="../icons/icon48.png" alt="Boss Agent" width="48" height="48">
+            <div>
+                <h1>Boss Agent Settings</h1>
+                <p>Configure your connection to MIZ OKI</p>
+            </div>
+        </div>
+
+        <!-- Connection Section -->
+        <div class="section">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+                Connection
+            </h2>
+
+            <div class="form-group">
+                <label for="api-url">Boss Agent API URL</label>
+                <input type="url" id="api-url" placeholder="https://boss-agent-adk-698171499447.us-central1.run.app">
+                <div class="hint">The URL of your Boss Agent service</div>
+            </div>
+
+            <div class="form-group">
+                <label for="api-key">API Key (Optional)</label>
+                <input type="password" id="api-key" placeholder="Enter API key if required">
+                <div class="hint">Leave empty if no authentication required</div>
+            </div>
+
+            <div class="form-group">
+                <div class="status-indicator">
+                    <div class="status-dot" id="status-dot"></div>
+                    <span id="status-text">Checking connection...</span>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" id="test-connection">Test Connection</button>
+        </div>
+
+        <!-- Preferences Section -->
+        <div class="section">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+                Preferences
+            </h2>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enable-notifications" checked>
+                    <label for="enable-notifications">Enable desktop notifications</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enable-context-menu" checked>
+                    <label for="enable-context-menu">Show Boss Agent in context menu</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="auto-open-sidepanel">
+                    <label for="auto-open-sidepanel">Auto-open side panel on click</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="default-model">Default Orchestration Mode</label>
+                <select id="default-model">
+                    <option value="auto">Auto (Recommended)</option>
+                    <option value="direct">Direct (Single Model)</option>
+                    <option value="moa">MOA (Mixture of Agents)</option>
+                    <option value="moe">MOE (Mixture of Experts)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Financial Tools Section -->
+        <div class="section">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Financial Tools
+            </h2>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enable-quick-tools" checked>
+                    <label for="enable-quick-tools">Show quick tool access in popup</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="default-lookback">Default Lookback Period (days)</label>
+                <select id="default-lookback">
+                    <option value="7">7 days</option>
+                    <option value="14" selected>14 days</option>
+                    <option value="30">30 days</option>
+                    <option value="60">60 days</option>
+                    <option value="90">90 days</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="default-ltv-model">Default LTV Model</label>
+                <select id="default-ltv-model">
+                    <option value="historical">Historical</option>
+                    <option value="cohort">Cohort</option>
+                    <option value="vertex_ai">Vertex AI ML</option>
+                    <option value="hybrid" selected>Hybrid</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn btn-primary" id="save-settings">Save Settings</button>
+            <button class="btn btn-secondary" id="reset-settings">Reset to Defaults</button>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="options.js"></script>
+</body>
+</html>

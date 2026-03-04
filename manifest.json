@@ -1,0 +1,95 @@
+{
+  "manifest_version": 3,
+  "name": "MIZ OKI Boss Agent",
+  "version": "1.0.0",
+  "description": "AI-powered financial models, marketing intelligence, and MCP tools via Boss Agent",
+  "author": "MIZ OKI",
+  "homepage_url": "https://mizoki3.com",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    },
+    "default_title": "Boss Agent"
+  },
+
+  "side_panel": {
+    "default_path": "src/sidepanel.html"
+  },
+
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "sidePanel",
+    "contextMenus",
+    "notifications",
+    "clipboardWrite",
+    "alarms"
+  ],
+
+  "host_permissions": [
+    "https://boss-agent-adk-698171499447.us-central1.run.app/*",
+    "https://*.run.app/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://mizoki3.com/*",
+    "https://*.mizoki.com/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content.js", "src/cre_content/content.js"],
+      "css": ["src/content.css", "src/cre_content/content.css"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
+      },
+      "description": "Open Boss Agent popup"
+    },
+    "open_sidepanel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Open Boss Agent side panel"
+    },
+    "quick_validate": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+V",
+        "mac": "Command+Shift+V"
+      },
+      "description": "Quick validate selected lease data"
+    }
+  },
+
+  "options_page": "src/options.html",
+
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

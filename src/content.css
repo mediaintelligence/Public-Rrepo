@@ -1,0 +1,5 @@
+/* 
+ Boss Agent Chrome Extension - Content Styles
+ Currently, component styles are injected dynamically by content.js using inline <style> tags 
+ or internal CSS. This file is kept to satisfy the manifest.json requirements.
+*/

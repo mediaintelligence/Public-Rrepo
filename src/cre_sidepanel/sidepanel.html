@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRE Underwriting Engine - Full Analysis</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="panel-container">
+    <!-- Header -->
+    <header class="panel-header">
+      <div class="header-content">
+        <img src="../../icons/icon32.png" alt="CRE" class="logo">
+        <div class="header-text">
+          <h1>CRE Underwriting Engine</h1>
+          <span class="subtitle">8-Layer Commercial Real Estate Analysis</span>
+        </div>
+      </div>
+      <div class="status-badge" id="connectionStatus">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting...</span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="panel-main">
+      <!-- Property Input Section -->
+      <section class="section" id="propertySection">
+        <div class="section-header">
+          <h2>Property Details</h2>
+          <button class="btn-icon" id="clearPropertyBtn" title="Clear">&#10006;</button>
+        </div>
+
+        <form id="propertyForm" class="form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propName">Property Name</label>
+              <input type="text" id="propName" placeholder="Enter property name">
+            </div>
+            <div class="form-group">
+              <label for="propType">Property Type</label>
+              <select id="propType" required>
+                <option value="">Select...</option>
+                <option value="office">Office</option>
+                <option value="retail">Retail</option>
+                <option value="industrial">Industrial</option>
+                <option value="multifamily">Multifamily</option>
+                <option value="mixed_use">Mixed Use</option>
+                <option value="hospitality">Hospitality</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propRSF">RSF (sq ft)</label>
+              <input type="number" id="propRSF" placeholder="100,000" min="0">
+            </div>
+            <div class="form-group">
+              <label for="propPrice">Purchase Price ($)</label>
+              <input type="number" id="propPrice" placeholder="25,000,000" min="0">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propNOI">NOI ($)</label>
+              <input type="number" id="propNOI" placeholder="1,625,000" min="0">
+            </div>
+            <div class="form-group">
+              <label for="propCapRate">In-Place Cap Rate (%)</label>
+              <input type="number" id="propCapRate" placeholder="6.5" step="0.01" min="0" max="20">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propSubmarket">Submarket</label>
+              <input type="text" id="propSubmarket" placeholder="Manhattan CBD">
+            </div>
+            <div class="form-group">
+              <label for="propOccupancy">Occupancy (%)</label>
+              <input type="number" id="propOccupancy" placeholder="92" step="0.1" min="0" max="100">
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Tenant Roll Section -->
+      <section class="section collapsible" id="tenantSection">
+        <div class="section-header">
+          <h2>Tenant Roll</h2>
+          <div class="header-actions">
+            <button class="btn-icon" id="addTenantBtn" title="Add Tenant">&#43;</button>
+            <button class="btn-icon toggle-btn" data-target="tenantContent">&#9660;</button>
+          </div>
+        </div>
+
+        <div class="section-content" id="tenantContent">
+          <div class="tenant-list" id="tenantList">
+            <!-- Tenants will be added here dynamically -->
+          </div>
+
+          <div class="tenant-summary" id="tenantSummary">
+            <div class="summary-item">
+              <span class="label">Total Tenants:</span>
+              <span class="value" id="totalTenants">0</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Total RSF:</span>
+              <span class="value" id="totalRSF">0 SF</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">WALT:</span>
+              <span class="value" id="waltYears">- years</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analysis Configuration -->
+      <section class="section collapsible" id="configSection">
+        <div class="section-header">
+          <h2>Analysis Configuration</h2>
+          <button class="btn-icon toggle-btn" data-target="configContent">&#9660;</button>
+        </div>
+
+        <div class="section-content" id="configContent">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="holdPeriod">Hold Period (years)</label>
+              <input type="number" id="holdPeriod" value="10" min="1" max="30">
+            </div>
+            <div class="form-group">
+              <label for="numSimulations">Monte Carlo Paths</label>
+              <select id="numSimulations">
+                <option value="1000">1,000 (Quick)</option>
+                <option value="5000">5,000 (Standard)</option>
+                <option value="10000" selected>10,000 (Full)</option>
+                <option value="50000">50,000 (Deep)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="exitCapSpread">Exit Cap Spread (bps)</label>
+              <input type="number" id="exitCapSpread" value="25" min="-100" max="200">
+            </div>
+            <div class="form-group">
+              <label for="discountRate">Discount Rate (%)</label>
+              <input type="number" id="discountRate" value="8.0" step="0.1" min="0" max="25">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" id="includeStressTest" checked>
+                Include Stress Test
+              </label>
+            </div>
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" id="includeRefiStress">
+                Include Refi Stress
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Run Analysis Button -->
+      <div class="action-bar">
+        <button class="btn btn-primary btn-large" id="runAnalysisBtn">
+          <span class="btn-icon">&#9654;</span>
+          Run Full Underwriting Analysis
+        </button>
+      </div>
+
+      <!-- Results Section -->
+      <section class="section results-section hidden" id="resultsSection">
+        <div class="section-header">
+          <h2>Analysis Results</h2>
+          <div class="header-actions">
+            <button class="btn-icon" id="exportResultsBtn" title="Export">&#8681;</button>
+          </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-card primary">
+            <span class="metric-label">Unlevered IRR</span>
+            <span class="metric-value" id="resultIRR">-</span>
+            <span class="metric-range" id="resultIRRRange">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Equity Multiple</span>
+            <span class="metric-value" id="resultEM">-</span>
+            <span class="metric-range" id="resultEMRange">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">NPV @ Disc Rate</span>
+            <span class="metric-value" id="resultNPV">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Exit Value</span>
+            <span class="metric-value" id="resultExitValue">-</span>
+            <span class="metric-range" id="resultExitRange">-</span>
+          </div>
+        </div>
+
+        <!-- Risk Metrics -->
+        <div class="subsection">
+          <h3>Risk Metrics</h3>
+          <div class="metrics-grid small">
+            <div class="metric-card">
+              <span class="metric-label">Value at Risk (95%)</span>
+              <span class="metric-value" id="resultVaR">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Default Probability</span>
+              <span class="metric-value" id="resultDefaultProb">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Breakeven Occupancy</span>
+              <span class="metric-value" id="resultBreakeven">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">DSCR (Yr 1)</span>
+              <span class="metric-value" id="resultDSCR">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Market Projections -->
+        <div class="subsection">
+          <h3>Market Projections (OU Mean-Reversion)</h3>
+          <div class="metrics-grid small">
+            <div class="metric-card">
+              <span class="metric-label">Cap Rate (Exit)</span>
+              <span class="metric-value" id="resultCapRate">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Rent Growth (CAGR)</span>
+              <span class="metric-value" id="resultRentGrowth">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Vacancy (Terminal)</span>
+              <span class="metric-value" id="resultVacancy">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Market Regime</span>
+              <span class="metric-value" id="resultRegime">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Summary -->
+        <div class="subsection">
+          <h3>Validation Summary</h3>
+          <div class="validation-summary" id="validationSummary">
+            <!-- Will be populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Cash Flow Chart Placeholder -->
+        <div class="subsection">
+          <h3>Projected Cash Flows</h3>
+          <div class="chart-container" id="cashFlowChart">
+            <div class="chart-placeholder">
+              Cash flow visualization will appear here
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Loading Overlay -->
+      <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Running Analysis...</div>
+        <div class="loading-progress" id="loadingProgress"></div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="panel-footer">
+      <div class="footer-left">
+        <button class="btn-text" id="historyBtn">History</button>
+        <button class="btn-text" id="settingsBtn">Settings</button>
+      </div>
+      <a href="https://mizoki3.com" target="_blank" class="footer-link">MIZ OKI Platform</a>
+    </footer>
+  </div>
+
+  <!-- Tenant Modal Template -->
+  <template id="tenantTemplate">
+    <div class="tenant-card" data-tenant-id="">
+      <div class="tenant-header">
+        <input type="text" class="tenant-name" placeholder="Tenant Name">
+        <button class="btn-icon remove-tenant" title="Remove">&#10006;</button>
+      </div>
+      <div class="tenant-fields">
+        <div class="form-row">
+          <div class="form-group">
+            <label>RSF</label>
+            <input type="number" class="tenant-rsf" placeholder="10,000" min="0">
+          </div>
+          <div class="form-group">
+            <label>Base Rent ($/SF)</label>
+            <input type="number" class="tenant-rent" placeholder="45.00" step="0.01" min="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lease Start</label>
+            <input type="date" class="tenant-start">
+          </div>
+          <div class="form-group">
+            <label>Lease End</label>
+            <input type="date" class="tenant-end">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lease Type</label>
+            <select class="tenant-lease-type">
+              <option value="triple_net">NNN</option>
+              <option value="modified_gross">Modified Gross</option>
+              <option value="gross">Gross</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Credit Rating</label>
+            <select class="tenant-credit">
+              <option value="AAA">AAA</option>
+              <option value="AA">AA</option>
+              <option value="A" selected>A</option>
+              <option value="BBB">BBB</option>
+              <option value="BB">BB</option>
+              <option value="B">B</option>
+              <option value="NR">Not Rated</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script src="../shared/api-client.js"></script>
+  <script src="../shared/utils.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
