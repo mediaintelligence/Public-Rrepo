@@ -1,0 +1,90 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/boss-agent-extension:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/boss-agent-extension:latest'
+      - '.'
+    id: 'build-image'
+
+  # Push the Docker image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/boss-agent-extension:$COMMIT_SHA'
+    id: 'push-image-commit'
+    waitFor: ['build-image']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/boss-agent-extension:latest'
+    id: 'push-image-latest'
+    waitFor: ['build-image']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'boss-agent-extension'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/boss-agent-extension:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '256Mi'
+      - '--cpu'
+      - '1'
+      - '--max-instances'
+      - '10'
+      - '--min-instances'
+      - '0'
+      - '--concurrency'
+      - '80'
+      - '--timeout'
+      - '60s'
+      - '--port'
+      - '8080'
+    id: 'deploy-cloud-run'
+    waitFor: ['push-image-commit', 'push-image-latest']
+
+  # Verify deployment
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Verifying deployment..."
+        SERVICE_URL=$(gcloud run services describe boss-agent-extension \
+          --region=${_REGION} \
+          --platform=managed \
+          --format='value(status.url)')
+
+        echo "Service deployed at: $${SERVICE_URL}"
+
+        curl -f "$${SERVICE_URL}/health" || exit 1
+
+        echo "Health check passed!"
+    id: 'verify-deployment'
+    waitFor: ['deploy-cloud-run']
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+
+substitutions:
+  _REGION: us-central1
+
+timeout: '600s'
+
+images:
+  - 'gcr.io/$PROJECT_ID/boss-agent-extension:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/boss-agent-extension:latest'

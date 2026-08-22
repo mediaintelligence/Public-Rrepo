@@ -1,0 +1,7 @@
+.git
+.gitignore
+AGENTS.md
+Dockerfile
+.dockerignore
+cloudbuild.yaml
+deploy-boss-agent-extension.sh
